@@ -15,9 +15,8 @@ public class UserDao {
 	
 	private ConnectionMaker connectionMaker;
 	
-	public UserDao(ConnectionMaker connectionMaker) {
-		ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-		this.connectionMaker = context.getBean("connectionMaker",ConnectionMaker.class);
+	public void setConnectionMaker(ConnectionMaker connectionMaker) {
+		this.connectionMaker = connectionMaker;
 	}
 	
 	public void add(User user) throws ClassNotFoundException, SQLException {
