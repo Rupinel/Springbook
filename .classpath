@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="/Users/woojinshin/workspace/springbook/lib/spring-context-support-4.3.7.RELEASE.jar"/>
 	<classpathentry kind="lib" path="/Users/woojinshin/workspace/springbook/lib/spring-core-4.3.7.RELEASE.jar"/>
 	<classpathentry kind="lib" path="/Users/woojinshin/workspace/springbook/lib/spring-expression-4.3.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-jdbc-4.3.7.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

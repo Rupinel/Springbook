@@ -1,10 +1,12 @@
 package springbook.user.dao;
 
+import javax.sql.DataSource;
+
 public class MessageDao {
 
-	private ConnectionMaker connectionMaker;
+	private DataSource dataSource;
 		
-	public MessageDao(ConnectionMaker connectionMaker) {
-		this.connectionMaker = connectionMaker;
+	public MessageDao(DataSource dataSource) {
+		this.dataSource = dataSource;
 	}
 }
