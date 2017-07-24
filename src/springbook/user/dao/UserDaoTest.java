@@ -5,31 +5,48 @@ import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import springbook.user.domain.User;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations="/applicationContext.xml")
 public class UserDaoTest {
 	
-	private UserDao dao;
+	@Autowired
+	private ApplicationContext context;
+	
+	@Autowired
+	UserDao dao;
+	
 	private User user1;
 	private User user2;
 	private User user3;
 	
 	@Before
 	public void setUp() {
-		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-		this.dao = context.getBean("userDao",UserDao.class);
+		
+//		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+//		this.dao = this.context.getBean("userDao",UserDao.class);
 		
 		this.user1 = new User("aaaa","shin","spring1");
 		this.user2 = new User("bbbb","jo","spring2");
 		this.user3 = new User("cccc","lee","spring3"); 
+		
+		System.out.println(this.context);
+		System.out.println(this);
 	}
 	
 	@Test
