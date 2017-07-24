@@ -55,7 +55,7 @@ public class UserDao {
 		ps.close();
 		c.close();
 		
-		if(user == null) throw new EmptyResultDataAccessException(1);
+//		if(user == null) throw new EmptyResultDataAccessException(1);
 		
 		return user;
 	}

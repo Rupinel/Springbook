@@ -2,6 +2,7 @@ package springbook.user.dao;
 
 import java.sql.SQLException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
@@ -16,14 +17,23 @@ import springbook.user.domain.User;
 
 public class UserDaoTest {
 	
+	private UserDao dao;
+	private User user1;
+	private User user2;
+	private User user3;
+	
+	@Before
+	public void setUp() {
+		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+		this.dao = context.getBean("userDao",UserDao.class);
+		
+		this.user1 = new User("aaaa","shin","spring1");
+		this.user2 = new User("bbbb","jo","spring2");
+		this.user3 = new User("cccc","lee","spring3"); 
+	}
+	
 	@Test
 	public void addAndGet() throws ClassNotFoundException, SQLException {
-
-		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-		UserDao dao = context.getBean("userDao",UserDao.class);
-		
-		User user1 = new User("aaaa","shin","spring1");
-		User user2 = new User("bbbb","jo","spring2");
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(), is(0));
@@ -48,12 +58,6 @@ public class UserDaoTest {
 	
 	@Test
 	public void count() throws ClassNotFoundException, SQLException {
-		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-		UserDao dao = context.getBean("userDao",UserDao.class);
-		
-		User user1 = new User("aaaaa","park","spring1");
-		User user2 = new User("bbbb","kim","spring2");
-		User user3 = new User("cccc","lee","spring3");
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(), is(0));
@@ -68,10 +72,9 @@ public class UserDaoTest {
 		assertThat(dao.getCount(), is(3));
 	}
 	
+	/*
 	@Test(expected=EmptyResultDataAccessException.class)
 	public void getUserFailure() throws SQLException {
-		ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-		UserDao dao = context.getBean("userDao",UserDao.class);
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(), is(0));
@@ -79,4 +82,6 @@ public class UserDaoTest {
 		dao.get("unknown_id");
 		
 	}
+	*/
+	
 }
