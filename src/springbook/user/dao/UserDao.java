@@ -14,7 +14,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import springbook.user.domain.User;
 
-public class UserDao {
+abstract public class UserDao {
+	
+	abstract protected PreparedStatement makeStatement(Connection c) throws SQLException;
 	
 	@Autowired
 	private DataSource dataSource;
@@ -23,19 +25,21 @@ public class UserDao {
 		this.dataSource = dataSource;
 	}
 	
-	public void add(User user) throws ClassNotFoundException, SQLException {
-		Connection c = dataSource.getConnection();
+	public void add(final User user) throws ClassNotFoundException, SQLException {
 		
-		PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
-		ps.setString(1, user.getId());
-		ps.setString(2, user.getName());
-		ps.setString(3, user.getPassword());
-		
-		ps.executeUpdate();
-		
-		ps.close();
-		c.close();
-	}
+		jdbcContextWithStatementStrategy(new StatementStrategy() {
+			@Override
+			public PreparedStatement makePrepareStatement(Connection c) throws SQLException {
+				PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?,?,?)");
+				ps.setString(1, user.getId());
+				ps.setString(2, user.getName());
+				ps.setString(3, user.getPassword());
+				
+				return ps;
+			}
+		});
+}
+	
 	
 	public User get(String id) throws ClassNotFoundException, SQLException {
 		Connection c = dataSource.getConnection();
@@ -63,29 +67,14 @@ public class UserDao {
 	}
 	
 	public void deleteAll() throws SQLException {
-		Connection c = null;
-		PreparedStatement ps = null;
 		
-		try {
-			c = dataSource.getConnection();
-			ps = c.prepareStatement("delete from users");
-			ps.executeUpdate();			
-		} catch (Exception e){
-			throw e;
-		} finally {
-			if(ps != null) {
-				try {
-					ps.close();
-				} catch (Exception e) {
-				}
+		jdbcContextWithStatementStrategy(new StatementStrategy() {
+			public PreparedStatement makePrepareStatement(Connection c) throws SQLException {
+				PreparedStatement ps = c.prepareStatement("delete from users");
+				return ps;
 			}
-			if( c != null ) {
-				try {
-					c.close();
-				} catch (Exception e) {
-				}
-			}
-		}
+		});	
+			
 	}
 	
 	public int getCount() throws SQLException {
@@ -124,4 +113,33 @@ public class UserDao {
 			} 
 		}	
 	}
+	
+	public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
+		Connection c = null;
+		PreparedStatement ps = null;
+		
+		try {
+
+			c = dataSource.getConnection();
+			ps = stmt.makePrepareStatement(c);
+			ps.executeUpdate();
+			
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (Exception e) {
+				}
+			} 
+			if (c != null) {
+				try {
+					c.close();
+				} catch (Exception e) {
+				}
+			} 
+		}	
+	}
+	
 }
