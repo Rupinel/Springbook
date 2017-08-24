@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -13,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowMapper;
 
 import springbook.user.domain.User;
 
@@ -21,7 +23,6 @@ abstract public class UserDao {
 	abstract protected PreparedStatement makeStatement(Connection c) throws SQLException;
 	
 	@Autowired
-	private DataSource dataSource;
 	private JdbcTemplate jdbcTemplate;
 	
 	public UserDao(){
@@ -29,8 +30,17 @@ abstract public class UserDao {
 	
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
-		this.dataSource = dataSource;
 	}
+	
+	private RowMapper<User> userMapper = new RowMapper<User>() {
+		public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+			User user = new User();
+			user.setId(rs.getString("id"));
+			user.setName(rs.getString("name"));
+			user.setPassword(rs.getString("password"));
+			return user;
+		}
+	};
 	
 	public void add(final User user) {
 		this.jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
@@ -38,17 +48,7 @@ abstract public class UserDao {
 	
 	
 	public User get(String id) {
-		return this.jdbcTemplate.queryForObject("select * from users where id = ?",
-				new Object[] {id},
-				new RowMapper<User>() {
-					public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-						User user = new User();
-						user.setId(rs.getString("id"));
-						user.setName(rs.getString("name"));
-						user.setPassword(rs.getString("password"));
-						return user;
-					}
-		});
+		return this.jdbcTemplate.queryForObject("select * from users where id = ?", new Object[] {id}, this.userMapper);
 	}
 	
 	public void deleteAll() { 
@@ -86,4 +86,9 @@ abstract public class UserDao {
 			} 
 		}	
 	}
+	
+	public List<User> getAll() {
+		return this.jdbcTemplate.query("select * from users order by id", this.userMapper);
+	}
+	
 }
