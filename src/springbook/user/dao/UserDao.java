@@ -16,6 +16,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.mysql.jdbc.MysqlErrorNumbers;
+
 import springbook.user.domain.User;
 
 abstract public class UserDao {
@@ -41,11 +43,17 @@ abstract public class UserDao {
 			return user;
 		}
 	};
-	
-	public void add(final User user) {
-		this.jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
+
+	public void add(final User user) throws DuplicateUserIdException, SQLException {
+		try {
+			this.jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
+		} catch (SQLException e) {
+			if(e.getErrorCode() == MysqlErrorNumbers.ER_DUP_ENTRY)
+				throw new DuplicateUserIdException(e);
+			else
+				throw new RuntimeException(e);
+		}
 	}
-	
 	
 	public User get(String id) {
 		return this.jdbcTemplate.queryForObject("select * from users where id = ?", new Object[] {id}, this.userMapper);
@@ -90,5 +98,4 @@ abstract public class UserDao {
 	public List<User> getAll() {
 		return this.jdbcTemplate.query("select * from users order by id", this.userMapper);
 	}
-	
 }
