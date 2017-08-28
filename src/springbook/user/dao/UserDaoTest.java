@@ -17,6 +17,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -30,7 +31,7 @@ public class UserDaoTest {
 	private ApplicationContext context;
 	
 	@Autowired
-	UserDao dao;
+	private UserDao dao;
 	
 	private User user1;
 	private User user2;
@@ -134,4 +135,10 @@ public class UserDaoTest {
 		assertThat(user1.getPassword(), is(user2.getPassword()));
 	}
 	
+	@Test(expected=DataAccessException.class)
+	public void duplcateKey() {
+		dao.deleteAll();
+		dao.add(user1);
+		dao.add(user1);
+	}
 }
